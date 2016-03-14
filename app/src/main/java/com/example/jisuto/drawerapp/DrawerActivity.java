@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -18,6 +20,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -29,6 +34,7 @@ public class DrawerActivity extends AppCompatActivity
     private FragmentTransaction mFragmentTransaction;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
+    private GridLayoutManager lLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,8 +129,15 @@ public class DrawerActivity extends AppCompatActivity
 
     class MyAdapter extends FragmentPagerAdapter {
 
+        Fragment mGallery;
+        Fragment mYaPhotos;
+        Fragment mCache;
+
         public MyAdapter(FragmentManager fm) {
             super(fm);
+            mGallery = new ImagesFragment();
+            mYaPhotos = new PrimaryFragment();
+            mCache = new PrimaryFragment();
         }
 
         /**
@@ -135,11 +148,11 @@ public class DrawerActivity extends AppCompatActivity
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new PrimaryFragment();
+                    return mGallery;
                 case 1:
-                    return new PrimaryFragment();
+                    return mYaPhotos;
                 case 2:
-                    return new PrimaryFragment();
+                    return mCache;
             }
             return null;
         }

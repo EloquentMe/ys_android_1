@@ -146,9 +146,10 @@ public class DrawerActivity extends AppCompatActivity
         public TabAdapter(FragmentManager fm, int tab_count) {
             super(fm);
             TAB_COUNT = tab_count;
+
             mGallery = new ImagesFragment();
-            mYaPhotos = new PrimaryFragment();
-            mCache = new PrimaryFragment();
+            mYaPhotos = new ImagesFragment();
+            mCache = new ImagesFragment();
         }
 
         /**

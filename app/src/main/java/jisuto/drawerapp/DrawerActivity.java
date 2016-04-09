@@ -1,6 +1,5 @@
-package com.example.jisuto.drawerapp;
+package jisuto.drawerapp;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -11,7 +10,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.GridLayoutManager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -21,6 +19,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import jisuto.drawerapp.tab.LocalImagesFragment;
+import jisuto.drawerapp.tab.InternetImagesFragment;
+import jisuto.drawerapp.utils.SingletonCarrier;
 
 public class DrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -33,7 +35,6 @@ public class DrawerActivity extends AppCompatActivity
     private FragmentTransaction mFragmentTransaction;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
-    private GridLayoutManager lLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +72,8 @@ public class DrawerActivity extends AppCompatActivity
         tabLayout.setOnTabSelectedListener(new SelectionListener());
         viewPager.setAdapter(tabAdapter);
         tabLayout.setupWithViewPager(viewPager);
+
+        SingletonCarrier.init(getApplicationContext());
     }
 
     @Override
@@ -147,9 +150,9 @@ public class DrawerActivity extends AppCompatActivity
             super(fm);
             TAB_COUNT = tab_count;
 
-            mGallery = new ImagesFragment();
-            mYaPhotos = new ImagesFragment();
-            mCache = new ImagesFragment();
+            mGallery = new LocalImagesFragment();
+            mYaPhotos = new InternetImagesFragment();
+            mCache = new LocalImagesFragment();
         }
 
         /**
@@ -200,6 +203,7 @@ public class DrawerActivity extends AppCompatActivity
         @Override
         public void onTabSelected(TabLayout.Tab tab) {
             mNavigationView.getMenu().getItem(tab.getPosition()).setChecked(true);
+            // TODO: backward checking currently does not work.
         }
 
         @Override

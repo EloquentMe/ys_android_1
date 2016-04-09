@@ -1,4 +1,4 @@
-package com.example.jisuto.drawerapp;
+package jisuto.drawerapp;
 
 import org.junit.Test;
 

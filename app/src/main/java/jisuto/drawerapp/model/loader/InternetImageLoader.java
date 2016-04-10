@@ -1,15 +1,9 @@
-package jisuto.drawerapp.tab;
-
+package jisuto.drawerapp.model.loader;
 
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Xml;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+
+import com.android.volley.RequestQueue;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -20,58 +14,13 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import jisuto.drawerapp.R;
-import jisuto.drawerapp.model.InternetImageAdapter;
+import jisuto.drawerapp.model.ImageHolder;
+import jisuto.drawerapp.utils.LoadListener;
 
-
-public class InternetImagesFragment extends Fragment {
-
-    private int columnCount = 4;
-    private GridLayoutManager lLayout;
-    private RecyclerView rView;
-
-    public InternetImagesFragment() {
-        // Required empty public constructor
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View x = inflater.inflate(R.layout.fragment_images, container, false);
-        //List<LocalItemObject> rowListItem = getAllItemList();
-        lLayout = new GridLayoutManager(getActivity().getApplicationContext(), columnCount);
-
-        rView = (RecyclerView) x.findViewById(R.id.recycler_view);
-        rView.setHasFixedSize(true);
-        rView.setLayoutManager(lLayout);
-        new NetworkTask().execute("http://api-fotki.yandex.ru/api/podhistory/poddate;2012-04-01T12:00:00Z/");
-        return x;
-    }
-
-    public static LocalImagesFragment newInstance(int cols) {
-        LocalImagesFragment newFragment = new LocalImagesFragment();
-        Bundle args = new Bundle();
-        args.putInt("columnCount", cols);
-        newFragment.setArguments(args);
-
-        return newFragment;
-    }
-
-    public int getColumnCount() {
-        return columnCount;
-    }
-
-    public void setColumnCount(int cols) {
-        if (columnCount == cols)
-            return;
-
-        android.support.v4.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
-        LocalImagesFragment newFragment = newInstance(cols);
-        ft.replace(R.id.tabs, newFragment); //tabs???
-        ft.commit();
-    }
+public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader implements ImageLoader {
 
     private class NetworkTask extends AsyncTask<String, Void, List<String>> {
 
@@ -125,8 +74,50 @@ public class InternetImagesFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<String> xml) {
-            //rView.setLayoutManager(new GridLayoutManager(MainActivity.this, 3));
-            rView.setAdapter(new InternetImageAdapter(xml));
+            urls = xml;
+            listener.countAcquired();
         }
     }
+
+    List<String> urls = Collections.emptyList();
+    LoadListener listener;
+
+    public InternetImageLoader(RequestQueue queue, ImageCache imageCache) {
+        super(queue, imageCache);
+    }
+
+    public class InternetImageContainer implements ImageHolder.ImageContainer {
+
+        private ImageContainer trueContainer;
+
+        InternetImageContainer(ImageContainer trueContainer) {
+            this.trueContainer = trueContainer;
+        }
+
+        @Override
+        public void cancelRequest() {
+            trueContainer.cancelRequest();
+        }
+    }
+
+    @Override
+    public void get(int position, ImageHolder holder) {
+        holder.setContainer(new InternetImageContainer(get(urls.get(position), holder)));
+    }
+
+    @Override
+    public int total() {
+        return urls.size();
+    }
+
+    @Override
+    public void acquireCount() {
+        new NetworkTask().execute("http://api-fotki.yandex.ru/api/podhistory/poddate;2012-04-01T12:00:00Z/");
+    }
+
+    @Override
+    public void onAcquireCount(LoadListener eventListener) {
+        this.listener = eventListener;
+    }
+
 }

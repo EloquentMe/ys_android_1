@@ -5,9 +5,15 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import java.lang.ref.SoftReference;
+import java.util.HashMap;
+import java.util.Map;
+
 import jisuto.drawerapp.R;
 
 public class ImageScaler {
+    private static Map<Integer, SoftReference<Bitmap>> bitmapCache = new HashMap<>();
+
     public static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
@@ -33,18 +39,27 @@ public class ImageScaler {
 
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
                                                          int reqWidth, int reqHeight) {
+        SoftReference<Bitmap> ref = bitmapCache.get(resId);
+        Bitmap result = null;
+        if (ref != null) {
+            result = ref.get();
+        }
+        if (result == null) {
+            // First decode with inJustDecodeBounds=true to check dimensions
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeResource(res, resId, options);
 
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(res, resId, options);
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false;
+            result = BitmapFactory.decodeResource(res, resId, options);
 
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeResource(res, resId, options);
+            bitmapCache.put(resId, new SoftReference<>(result));
+        }
+        return result;
     }
 
     public static Bitmap getPlaceholder(Resources res) {

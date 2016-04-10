@@ -20,8 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import jisuto.drawerapp.tab.LocalImagesFragment;
-import jisuto.drawerapp.tab.InternetImagesFragment;
+import jisuto.drawerapp.tab.ImagesFragment;
 import jisuto.drawerapp.utils.SingletonCarrier;
 
 public class DrawerActivity extends AppCompatActivity
@@ -39,6 +38,7 @@ public class DrawerActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SingletonCarrier.init(getApplicationContext());
         setContentView(R.layout.activity_drawer);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -73,7 +73,7 @@ public class DrawerActivity extends AppCompatActivity
         viewPager.setAdapter(tabAdapter);
         tabLayout.setupWithViewPager(viewPager);
 
-        SingletonCarrier.init(getApplicationContext());
+
     }
 
     @Override
@@ -150,9 +150,12 @@ public class DrawerActivity extends AppCompatActivity
             super(fm);
             TAB_COUNT = tab_count;
 
-            mGallery = new LocalImagesFragment();
-            mYaPhotos = new InternetImagesFragment();
-            mCache = new LocalImagesFragment();
+            SingletonCarrier loaderCarrier = SingletonCarrier.getInstance();
+
+            mGallery = ImagesFragment.newInstance(loaderCarrier.getGalleryImageLoader());
+            //mYaPhotos = new InternetImagesFragment();
+            mYaPhotos = ImagesFragment.newInstance(loaderCarrier.getInternetImageLoader());
+            mCache = ImagesFragment.newInstance(loaderCarrier.getCacheImageLoader());
         }
 
         /**

@@ -5,6 +5,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import jisuto.drawerapp.R;
+
 public class ImageScaler {
     public static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
@@ -43,5 +45,9 @@ public class ImageScaler {
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
+    }
+
+    public static Bitmap getPlaceholder(Resources res) {
+        return BitmapFactory.decodeResource(res, R.drawable.placeholder);
     }
 }

@@ -7,13 +7,14 @@ import android.graphics.drawable.BitmapDrawable;
 import java.lang.ref.WeakReference;
 
 import jisuto.drawerapp.model.LocalImageAdapter.BitmapWorkerTask;
+import jisuto.drawerapp.utils.ImageScaler;
 
 class AsyncDrawable extends BitmapDrawable {
     private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
 
     public AsyncDrawable(Resources res,
                          BitmapWorkerTask bitmapWorkerTask) {
-        super(res, (Bitmap) null);
+        super(res, ImageScaler.getPlaceholder(res));
         bitmapWorkerTaskReference =
                 new WeakReference<>(bitmapWorkerTask);
     }

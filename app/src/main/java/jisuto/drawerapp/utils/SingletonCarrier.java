@@ -30,13 +30,13 @@ public class SingletonCarrier {
     private ImageLoader mCacheImageLoader;
     private ImageLoader mGalleryImageLoader;
 
-    private static Context mCtx;
+    private Context mCtx;
 
     public ImageLoader getGalleryImageLoader() {
         return mGalleryImageLoader;
     }
 
-    private static class InternetImageCache implements com.android.volley.toolbox.ImageLoader.ImageCache {
+    private class InternetImageCache implements com.android.volley.toolbox.ImageLoader.ImageCache {
         private final LruCache<String, Bitmap>
                 lruCache = new LruCache<String, Bitmap>(40);
 
@@ -114,7 +114,7 @@ public class SingletonCarrier {
         return mCacheImageLoader;
     }
 
-    public static Context getContext() {
+    public Context getContext() {
         return mCtx;
     }
 

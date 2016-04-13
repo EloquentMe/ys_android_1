@@ -2,16 +2,14 @@ package jisuto.drawerapp.model.loader;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.LruCache;
 import android.widget.ImageView;
 
 import java.io.IOException;
-import java.io.NotActiveException;
 import java.io.ObjectInputStream;
 import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import jisuto.drawerapp.R;
@@ -54,7 +52,6 @@ public class CacheImageLoader implements ImageLoader {
         public int position;
 
         public BitmapWorkerTask(ImageView imageView) {
-            // Use a WeakReference to ensure the ImageView can be garbage collected
             imageViewReference = new SoftReference<>(imageView);
         }
 
@@ -82,6 +79,13 @@ public class CacheImageLoader implements ImageLoader {
             if (imageView != null && bitmap != null) {
                 imageView.setImageBitmap(bitmap);
             }
+        }
+
+        protected Bitmap getFullSizeImage(int position) {
+            Context context = SingletonCarrier.getInstance().getContext();
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = false;
+            return BitmapFactory.decodeResource(context.getResources(), allItems[position % 6], options);
         }
     }
 
@@ -121,10 +125,15 @@ public class CacheImageLoader implements ImageLoader {
         public void cancelRequest() {
             task.cancel(true);
         }
+
+        /*@Override
+        public Bitmap getFullSizeBitmap(int position) {
+            return task.getFullSizeImage(position);
+        }*/
     }
 
     @Override
-    public void get(int position, ImageHolder holder) {
+    public void setHolderContent(int position, ImageHolder holder) {
         ImageView view = holder.getImage();
         boolean cancelled = potentialCancel(position, view);
         if (cancelled) {

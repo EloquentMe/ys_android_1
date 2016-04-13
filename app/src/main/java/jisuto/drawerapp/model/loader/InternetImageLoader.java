@@ -1,5 +1,6 @@
 package jisuto.drawerapp.model.loader;
 
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Xml;
 
@@ -13,8 +14,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import jisuto.drawerapp.model.ImageHolder;
@@ -98,10 +101,26 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader 
         public void cancelRequest() {
             trueContainer.cancelRequest();
         }
+
+        /*@Override
+        public Bitmap getFullSizeBitmap(int position) {
+            get(urls.get(position), new ImageListener() {
+                @Override
+                public void onResponse(ImageContainer response, boolean isImmediate) {
+                    pic =  response.getBitmap();
+                }
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }
+            return null;
+        }*/
     }
 
     @Override
-    public void get(int position, ImageHolder holder) {
+    public void setHolderContent(int position, ImageHolder holder) {
         holder.setContainer(new InternetImageContainer(get(urls.get(position), holder)));
     }
 
@@ -112,7 +131,8 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader 
 
     @Override
     public void acquireCount() {
-        new NetworkTask().execute("http://api-fotki.yandex.ru/api/podhistory/poddate;2012-04-01T12:00:00Z/");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z/'");
+        new NetworkTask().execute("http://api-fotki.yandex.ru/api/podhistory/poddate;"+ sdf.format(new Date()));
     }
 
     @Override

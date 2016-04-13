@@ -1,30 +1,44 @@
 package jisuto.drawerapp.model;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 
+import jisuto.drawerapp.FullscreenActivity;
 import jisuto.drawerapp.R;
+import jisuto.drawerapp.utils.SingletonCarrier;
 
-public class ImageHolder extends RecyclerView.ViewHolder implements ImageLoader.ImageListener, Serializable {
+public class ImageHolder extends RecyclerView.ViewHolder implements ImageLoader.ImageListener,
+        Serializable,
+        View.OnClickListener {
 
-
-    public static interface ImageContainer {
-        public abstract void cancelRequest();
+    public interface ImageContainer {
+        void cancelRequest();
+        //Bitmap getFullSizeBitmap(int position);
     }
 
     private final ImageView image;
-
     ImageContainer container;
+    boolean newApi = true;
 
     public ImageHolder(View itemView) {
         super(itemView);
         image = (ImageView) itemView.findViewById(R.id.image_view);
+        image.setOnClickListener(this);
     }
 
     public void setContainer(ImageContainer container) {
@@ -42,5 +56,45 @@ public class ImageHolder extends RecyclerView.ViewHolder implements ImageLoader.
 
     @Override
     public void onErrorResponse(VolleyError error) {
+    }
+
+    @Override
+    public void onClick(View v) {
+        /*Bitmap pic = container.getFullSizeBitmap(getAdapterPosition());
+        if (pic != null) {
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            pic.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            byte[] byteArray = stream.toByteArray();
+            */Context context = SingletonCarrier.getInstance().getContext();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && newApi) {
+                Log.i("DrawerApp:", "ImageHolder: New API.");
+                Intent subActivity = new Intent(context,
+                        FullscreenActivity.class);
+                subActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                //subActivity.putExtra("bitmap", byteArray);
+                context.startActivity(subActivity);/*,
+                        ActivityOptions.makeSceneTransitionAnimation((Activity) v.getContext(),
+                                v.findViewById(R.id.image_view), "image").toBundle());*/
+            } else {
+                Log.i("DrawerApp:", "ImageHolder: Old API.");
+                int[] screenLocation = new int[2];
+                v.getLocationOnScreen(screenLocation);
+
+                Intent subActivity = new Intent(context,
+                        FullscreenActivity.class);
+                //subActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                int orientation = context.getResources().getConfiguration().orientation;
+                subActivity.
+                        putExtra("orientation", orientation).
+                        putExtra("left", screenLocation[0]).
+                        putExtra("top", screenLocation[1]);
+                Log.d("BadApi", "subAct");
+                context.startActivity(subActivity);
+                Log.d("BadApi", "SubAct Created");
+                // Override transitions: we don't want the normal window animation in addition
+                // to our custom one
+                ((Activity) context).overridePendingTransition(0, 0);
+            }
+        //}
     }
 }

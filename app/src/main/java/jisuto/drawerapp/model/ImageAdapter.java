@@ -41,7 +41,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageHolder> implements S
 
     @Override
     public void onBindViewHolder(final ImageHolder holder, int position) {
-        loader.get(position, holder);
+        loader.setHolderContent(position, holder);
     }
 
     @Override

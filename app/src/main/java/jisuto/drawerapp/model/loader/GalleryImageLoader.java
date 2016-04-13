@@ -19,9 +19,6 @@ import jisuto.drawerapp.model.ImageHolder;
 import jisuto.drawerapp.utils.LoadListener;
 import jisuto.drawerapp.utils.SingletonCarrier;
 
-/**
- * Created by jisuto on 4/10/16.
- */
 public class GalleryImageLoader implements ImageLoader {
 
     private class GalleryThinContainer implements ImageHolder.ImageContainer, Serializable {

@@ -2,7 +2,6 @@ package jisuto.drawerapp;
 
 import android.annotation.SuppressLint;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -112,7 +111,7 @@ public class FullscreenActivity extends AppCompatActivity implements View.OnClic
         // while interacting with the UI.
         findViewById(R.id.dummy_button1).setOnTouchListener(mDelayHideTouchListener);
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.full_screen_pager);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.fullscreen_pager);
 
         FullscreenImageAdapter adapter = new FullscreenImageAdapter(FullscreenActivity.this);
 

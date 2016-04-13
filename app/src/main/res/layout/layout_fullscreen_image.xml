@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <!--<TextView
         android:id="@+id/small_filling"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,7 +14,13 @@
         android:textSize="50sp"
         android:textStyle="bold"
         android:clickable="false"
-        android:duplicateParentState="true"/>
+        android:duplicateParentState="true"/>-->
+
+    <jisuto.drawerapp.utils.TouchImageView
+        android:id="@+id/small_filling"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/placeholder" />
 
 
 </RelativeLayout>

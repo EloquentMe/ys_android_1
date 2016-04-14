@@ -5,20 +5,19 @@ import android.graphics.drawable.BitmapDrawable;
 
 import java.lang.ref.SoftReference;
 
-import jisuto.drawerapp.model.loader.CacheImageLoader.BitmapWorkerTask;
 import jisuto.drawerapp.utils.ImageScaler;
 
 public class AsyncDrawable extends BitmapDrawable {
-    private final SoftReference<BitmapWorkerTask> bitmapWorkerTaskReference;
+    private final SoftReference<BitmapWorkerTask> workerReference;
 
     public AsyncDrawable(Resources res,
-                         BitmapWorkerTask bitmapWorkerTask) {
+                         BitmapWorkerTask worker) {
         super(res, ImageScaler.getPlaceholder(res));
-        bitmapWorkerTaskReference =
-                new SoftReference<>(bitmapWorkerTask);
+        workerReference =
+                new SoftReference<>(worker);
     }
 
     public BitmapWorkerTask getBitmapWorkerTask() {
-        return bitmapWorkerTaskReference.get();
+        return workerReference.get();
     }
 }

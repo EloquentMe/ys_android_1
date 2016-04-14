@@ -108,7 +108,6 @@ public class DrawerActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
@@ -124,7 +123,8 @@ public class DrawerActivity extends AppCompatActivity
             TabLayout.Tab tab = tabLayout.getTabAt(2);
             tab.select();
         } else if (id == R.id.nav_settings) {
-
+            Intent settingsIntent = new Intent(this, MainSettingsActivity.class);
+            startActivity(settingsIntent);
         } else if (id == R.id.nav_report) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
@@ -153,7 +153,6 @@ public class DrawerActivity extends AppCompatActivity
             SingletonCarrier loaderCarrier = SingletonCarrier.getInstance();
 
             mGallery = ImagesFragment.newInstance(loaderCarrier.getGalleryImageLoader());
-            //mYaPhotos = new InternetImagesFragment();
             mYaPhotos = ImagesFragment.newInstance(loaderCarrier.getInternetImageLoader());
             mCache = ImagesFragment.newInstance(loaderCarrier.getCacheImageLoader());
         }

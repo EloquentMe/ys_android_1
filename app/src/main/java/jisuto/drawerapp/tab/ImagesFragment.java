@@ -11,15 +11,14 @@ import android.view.ViewGroup;
 import jisuto.drawerapp.R;
 import jisuto.drawerapp.model.ImageAdapter;
 import jisuto.drawerapp.model.loader.ImageLoader;
+import jisuto.drawerapp.utils.SingletonCarrier;
 
 
 public class ImagesFragment extends Fragment {
 
-    public static int DEFAULT_COLUMN_COUNT = 4;
-
-    private int columnCount = DEFAULT_COLUMN_COUNT;
+    private int columnCount = SingletonCarrier.getInstance().getColumnCount();
     private GridLayoutManager lLayout;
-
+    private RecyclerView rView;
     private ImageLoader loader;
 
     @Override
@@ -29,7 +28,7 @@ public class ImagesFragment extends Fragment {
         lLayout = new GridLayoutManager(getActivity().getApplicationContext(), columnCount);
         loader = (ImageLoader) getArguments().getSerializable("loader");
 
-        RecyclerView rView = (RecyclerView) x.findViewById(R.id.recycler_view);
+        rView = (RecyclerView) x.findViewById(R.id.recycler_view);
         rView.setHasFixedSize(true);
         rView.setLayoutManager(lLayout);
 
@@ -39,16 +38,12 @@ public class ImagesFragment extends Fragment {
     }
 
     public static ImagesFragment newInstance(ImageLoader loader) {
-        return newInstance(loader, DEFAULT_COLUMN_COUNT);
-    }
-
-    public static ImagesFragment newInstance(ImageLoader loader, int cols) {
         ImagesFragment newFragment = new ImagesFragment();
         Bundle args = new Bundle();
         args.putSerializable("loader", loader);
-        //args.putInt("columnCount", cols);
         newFragment.setArguments(args);
 
         return newFragment;
     }
+
 }

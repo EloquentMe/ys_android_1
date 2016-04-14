@@ -3,24 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--<TextView
-        android:id="@+id/small_filling"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:keepScreenOn="true"
-        android:text="@string/dummy_content"
-        android:textColor="#33b5e5"
-        android:textSize="50sp"
-        android:textStyle="bold"
-        android:clickable="false"
-        android:duplicateParentState="true"/>-->
-
     <jisuto.drawerapp.utils.TouchImageView
         android:id="@+id/small_filling"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/placeholder" />
-
 
 </RelativeLayout>

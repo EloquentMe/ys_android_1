@@ -3,8 +3,10 @@ package jisuto.drawerapp.utils;
 import android.app.LoaderManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.preference.PreferenceManager;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
@@ -16,13 +18,24 @@ import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 
+import jisuto.drawerapp.model.ImageHolder;
 import jisuto.drawerapp.model.loader.CacheImageLoader;
 import jisuto.drawerapp.model.loader.GalleryImageLoader;
 import jisuto.drawerapp.model.loader.ImageLoader;
 import jisuto.drawerapp.model.loader.InternetImageLoader;
 
 public class SingletonCarrier {
+
+    public static final int SCALE_FACTOR = 3;
+    public static ImageHolder.ImageContainer EMPTY_CONTAINER = new ImageHolder.ImageContainer() {
+        public void cancelRequest() {}
+    };
+
+    public static final int DEFAULT_MEM_CACHE_SIZE = 5 * 1024;
+    public static int DEFAULT_COLUMN_COUNT = 4;
+
     private static SingletonCarrier mInstance;
     private ContentResolver mContentResolver;
     private RequestQueue mRequestQueue;
@@ -31,14 +44,18 @@ public class SingletonCarrier {
     private ImageLoader mGalleryImageLoader;
 
     private Context mCtx;
+    private int mColumnCount;
+
+    public int getColumnCount() {
+        return mColumnCount;
+    }
 
     public ImageLoader getGalleryImageLoader() {
         return mGalleryImageLoader;
     }
 
     private class InternetImageCache implements com.android.volley.toolbox.ImageLoader.ImageCache {
-        private final LruCache<String, Bitmap>
-                lruCache = new LruCache<String, Bitmap>(40);
+        private final BitmapCache<String> lruCache = new BitmapCache<>(2 * DEFAULT_MEM_CACHE_SIZE);
 
         private final DiskBasedCache diskCache = new DiskBasedCache(mCtx.getCacheDir(), 1024 * 1024 * 50);
 
@@ -76,6 +93,9 @@ public class SingletonCarrier {
         mCacheImageLoader = new CacheImageLoader();
         mGalleryImageLoader = new GalleryImageLoader();
         mContentResolver = context.getContentResolver();
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mCtx);
+        mColumnCount = Integer.parseInt(sharedPreferences.getString("tab_count", String.valueOf(DEFAULT_COLUMN_COUNT)));
     }
 
     public static synchronized SingletonCarrier getInstance() {

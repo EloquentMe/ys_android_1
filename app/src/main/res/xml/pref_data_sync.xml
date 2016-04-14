@@ -1,0 +1,15 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
+         dismiss it. -->
+    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+
+    <jisuto.drawerapp.utils.SeekBarPreference
+        android:defaultValue="5"
+        app:max="100"
+        android:key="max_cache_size"
+        android:title="@string/pref_title_max_cache_size"/>
+
+</PreferenceScreen>

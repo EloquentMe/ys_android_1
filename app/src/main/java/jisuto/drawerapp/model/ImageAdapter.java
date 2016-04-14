@@ -36,7 +36,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageHolder> implements S
     @Override
     public void onViewRecycled(ImageHolder holder) {
         super.onViewRecycled(holder);
-        holder.container.cancelRequest();
+        if (holder.container != null) {
+            holder.container.cancelRequest();
+        }
     }
 
     @Override

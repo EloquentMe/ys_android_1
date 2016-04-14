@@ -25,7 +25,20 @@
             android:name=".FullscreenActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTask"
-            android:theme="@style/FullscreenTheme"></activity>
+            android:parentActivityName=".DrawerActivity"
+            android:theme="@style/FullscreenTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="jisuto.drawerapp.DrawerActivity" />
+        </activity>
+        <activity
+            android:name=".MainSettingsActivity"
+            android:label="@string/title_activity_main_settings"
+            android:parentActivityName=".DrawerActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="jisuto.drawerapp.DrawerActivity" />
+        </activity>
     </application>
 
 </manifest>

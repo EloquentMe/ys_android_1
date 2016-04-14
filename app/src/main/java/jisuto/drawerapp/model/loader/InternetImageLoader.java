@@ -1,5 +1,6 @@
 package jisuto.drawerapp.model.loader;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Xml;
@@ -11,6 +12,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -21,9 +23,13 @@ import java.util.Date;
 import java.util.List;
 
 import jisuto.drawerapp.model.ImageHolder;
+import jisuto.drawerapp.utils.BitmapCache;
+import jisuto.drawerapp.utils.ImageScaler;
 import jisuto.drawerapp.utils.LoadListener;
+import jisuto.drawerapp.utils.SingletonCarrier;
 
-public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader implements ImageLoader {
+public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader
+        implements ImageLoader {
 
     private class NetworkTask extends AsyncTask<String, Void, List<String>> {
 
@@ -82,11 +88,18 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader 
         }
     }
 
-    List<String> urls = Collections.emptyList();
-    LoadListener listener;
+    private List<String> urls;
+    private transient BitmapCache<String> cache;
+    private LoadListener listener;
 
     public InternetImageLoader(RequestQueue queue, ImageCache imageCache) {
         super(queue, imageCache);
+        urls = Collections.emptyList();
+        cache = new BitmapCache<>(5 * 1024);
+    }
+
+    private void readObject(ObjectInputStream in) {
+        cache = new BitmapCache<>(5 * 1024);
     }
 
     public class InternetImageContainer implements ImageHolder.ImageContainer {
@@ -102,31 +115,22 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader 
             trueContainer.cancelRequest();
         }
 
-        /*@Override
-        public Bitmap getFullSizeBitmap(int position) {
-            get(urls.get(position), new ImageListener() {
-                @Override
-                public void onResponse(ImageContainer response, boolean isImmediate) {
-                    pic =  response.getBitmap();
-                }
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-
-                }
-            }
-            return null;
-        }*/
     }
 
+    /*
+     * Caching is done inside volley
+     */
     @Override
     public void setHolderContent(int position, ImageHolder holder) {
-        holder.setContainer(new InternetImageContainer(get(urls.get(position), holder)));
+        String url = urls.get(position);
+        ImageContainer volleyContainer = get(url, holder);
+        InternetImageContainer container = new InternetImageContainer(volleyContainer);
+        holder.setContainer(container);
     }
 
     @Override
     public int total() {
-        return urls.size();
+        return urls == null ? 0 : urls.size();
     }
 
     @Override
@@ -138,6 +142,13 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader 
     @Override
     public void onAcquireCount(LoadListener eventListener) {
         this.listener = eventListener;
+    }
+
+    @Override
+    public Bitmap getBitmap(Object id) throws IOException {
+        //TODO
+        Resources res = SingletonCarrier.getInstance().getContext().getResources();
+        return ImageScaler.getPlaceholder(res);
     }
 
 }

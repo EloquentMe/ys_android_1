@@ -1,10 +1,9 @@
 package jisuto.drawerapp.model.loader;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.util.LruCache;
 import android.widget.ImageView;
 
 import java.io.IOException;
@@ -14,11 +13,52 @@ import java.util.Random;
 
 import jisuto.drawerapp.R;
 import jisuto.drawerapp.model.ImageHolder;
+import jisuto.drawerapp.utils.BitmapCache;
 import jisuto.drawerapp.utils.ImageScaler;
 import jisuto.drawerapp.utils.LoadListener;
+
 import jisuto.drawerapp.utils.SingletonCarrier;
 
 public class CacheImageLoader implements ImageLoader {
+
+    class CacheImageContainer implements ImageHolder.ImageContainer {
+
+        CacheWorker task;
+
+        CacheImageContainer(CacheWorker task) {
+            this.task = task;
+        }
+
+        @Override
+        public void cancelRequest() {
+            task.cancel(true);
+        }
+
+        /*@Override
+        public Bitmap getFullSizeBitmap(int position) {
+            return task.getFullSizeImage(position);
+        }*/
+    }
+
+    class CacheWorker extends BitmapWorkerTask<Integer> {
+
+        public CacheWorker(ImageView imageView) {
+            super(imageView);
+        }
+
+        // Decode image in background.
+        @Override
+        protected Bitmap doInBackground(Integer... params) {
+            this.position = params[0];
+            int pos = position % allItems.length;
+            Context context = SingletonCarrier.getInstance().getContext();
+            Bitmap pic = ImageScaler.decodeSampledBitmapFromResource(context.getResources(), allItems[pos]
+                    , 100, 100);
+            itemList.put(pos, pic);
+            return pic;
+        }
+
+    }
 
     public static final int[] allItems = new int[]{
             R.drawable.image_1,
@@ -27,11 +67,14 @@ public class CacheImageLoader implements ImageLoader {
             R.drawable.image_4,
             R.drawable.image_5,
             R.drawable.image_6};
+
+    private static final int MEM_CACHE_SIZE = 3 * SingletonCarrier.DEFAULT_MEM_CACHE_SIZE;
+
     static {
         shuffleItems();
     }
 
-    private transient LruCache<Integer, Bitmap> itemList;
+    private transient BitmapCache<Integer> itemList;
     private LoadListener eventListener;
 
     private static void shuffleItems() {
@@ -47,102 +90,32 @@ public class CacheImageLoader implements ImageLoader {
         }
     }
 
-    class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
-        private final SoftReference<ImageView> imageViewReference;
-        public int position;
-
-        public BitmapWorkerTask(ImageView imageView) {
-            imageViewReference = new SoftReference<>(imageView);
-        }
-
-        // Decode image in background.
-        @Override
-        protected Bitmap doInBackground(Integer... params) {
-            position = params[0] % 6;
-            Bitmap pic = itemList.get(position);
-            if (pic == null) {
-                Context context = SingletonCarrier.getInstance().getContext();
-                pic = ImageScaler.decodeSampledBitmapFromResource(context.getResources(),
-                        allItems[position], 100, 100);
-                itemList.put(position, pic);
-            }
-            return pic;
-        }
-
-        // Once complete, see if ImageView is still around and set bitmap.
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (isCancelled()) {
-                bitmap = null;
-            }
-            final ImageView imageView = imageViewReference.get();
-            if (imageView != null && bitmap != null) {
-                imageView.setImageBitmap(bitmap);
-            }
-        }
-
-        protected Bitmap getFullSizeImage(int position) {
-            Context context = SingletonCarrier.getInstance().getContext();
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = false;
-            return BitmapFactory.decodeResource(context.getResources(), allItems[position % 6], options);
-        }
-    }
-
     public CacheImageLoader() {
-        itemList = new LruCache<>(allItems.length);
+        itemList = new BitmapCache<>(MEM_CACHE_SIZE);
     }
 
     private final void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
 
-        itemList = new LruCache<>(allItems.length);
-    }
-
-    private boolean potentialCancel(int position, ImageView view) {
-        if (view.getDrawable() instanceof AsyncDrawable) {
-            BitmapWorkerTask task = ((AsyncDrawable) view.getDrawable()).getBitmapWorkerTask();
-            if (!view.equals(task.imageViewReference.get()) || position != task.position) {
-                task.cancel(true);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return true;
-        }
-    }
-
-    public class CacheImageContainer implements ImageHolder.ImageContainer {
-
-        BitmapWorkerTask task;
-
-        CacheImageContainer(BitmapWorkerTask task) {
-            this.task = task;
-        }
-
-        @Override
-        public void cancelRequest() {
-            task.cancel(true);
-        }
-
-        /*@Override
-        public Bitmap getFullSizeBitmap(int position) {
-            return task.getFullSizeImage(position);
-        }*/
+        itemList = new BitmapCache<>(MEM_CACHE_SIZE);
     }
 
     @Override
     public void setHolderContent(int position, ImageHolder holder) {
         ImageView view = holder.getImage();
-        boolean cancelled = potentialCancel(position, view);
-        if (cancelled) {
-            BitmapWorkerTask task = new BitmapWorkerTask(view);
-            Context context = SingletonCarrier.getInstance().getContext();
-            AsyncDrawable drawable = new AsyncDrawable(context.getResources(), task);
-            view.setImageDrawable(drawable);
-            holder.setContainer(new CacheImageContainer(task));
-            task.execute(position);
+        Bitmap pic = itemList.get(position % allItems.length);
+        if (pic == null) {
+            boolean cancelled = BitmapWorkerTask.potentialCancel(position, view);
+            if (cancelled) {
+                CacheWorker task = new CacheWorker(view);
+                Context context = SingletonCarrier.getInstance().getContext();
+                AsyncDrawable drawable = new AsyncDrawable(context.getResources(), task);
+                view.setImageDrawable(drawable);
+                holder.setContainer(new CacheImageContainer(task));
+                task.execute(position);
+            }
+        } else {
+            view.setImageBitmap(pic);
         }
     }
 
@@ -159,5 +132,12 @@ public class CacheImageLoader implements ImageLoader {
     @Override
     public void onAcquireCount(LoadListener eventListener) {
         this.eventListener = eventListener;
+    }
+
+    @Override
+    public Bitmap getBitmap(Object id) throws IOException {
+        int resId = ((Integer) id ) % allItems.length;
+        Resources res = SingletonCarrier.getInstance().getContext().getResources();
+        return ImageScaler.decodeSampledBitmapFromResource(res, resId);
     }
 }

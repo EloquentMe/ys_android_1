@@ -51,7 +51,7 @@ public class SeekBarPreference extends Preference
 
     @Override
     public CharSequence getSummary() {
-        return null;
+        return String.valueOf(mProgress);
     }
 
     @Override
@@ -102,6 +102,7 @@ public class SeekBarPreference extends Preference
         if (progress != mProgress) {
             mProgress = progress;
             persistInt(progress);
+            setSummary(String.valueOf(mProgress));
             if (notifyChanged) {
                 notifyChanged();
             }

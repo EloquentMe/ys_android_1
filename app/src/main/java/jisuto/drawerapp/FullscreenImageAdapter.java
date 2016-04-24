@@ -19,15 +19,14 @@ public class FullscreenImageAdapter extends PagerAdapter {
     private LayoutInflater inflater;
 
     // constructor
-    public FullscreenImageAdapter(Activity activity
-                                  ) {
+    public FullscreenImageAdapter(Activity activity) {
         this._activity = activity;
         //this._imagePaths = imagePaths;
     }
 
     @Override
     public int getCount() {
-        return 10; //TODO
+        return 1; //TODO: no viewpager functionality
     }
 
     @Override
@@ -45,8 +44,8 @@ public class FullscreenImageAdapter extends PagerAdapter {
         View viewLayout = inflater.inflate(R.layout.layout_fullscreen_image, container,
                 false);
 
-        View dummy_text = viewLayout.findViewById(R.id.small_filling);
-        dummy_text.setOnClickListener((FullscreenActivity)_activity);
+        View touchImageView = viewLayout.findViewById(R.id.touch_image_view);
+        touchImageView.setOnClickListener((FullscreenActivity)_activity);
 
         /*imgDisplay = (ImageView) viewLayout.findViewById(R.id.imgDisplay);
         btnClose = (Button) viewLayout.findViewById(R.id.btnClose);
@@ -71,7 +70,6 @@ public class FullscreenImageAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        ((ViewPager) container).removeView((RelativeLayout) object);
-
+        container.removeView((RelativeLayout) object);
     }
 }

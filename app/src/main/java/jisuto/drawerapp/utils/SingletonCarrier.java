@@ -86,7 +86,7 @@ public class SingletonCarrier {
     }
 
     private SingletonCarrier(Context context) {
-        mCtx = context.getApplicationContext();
+        mCtx = context;//.getApplicationContext();
         mRequestQueue = getRequestQueue();
 
         mInternetImageLoader = new InternetImageLoader(mRequestQueue, new InternetImageCache());

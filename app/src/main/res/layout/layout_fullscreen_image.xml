@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <jisuto.drawerapp.utils.TouchImageView
-        android:id="@+id/small_filling"
+        android:id="@+id/touch_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/placeholder" />

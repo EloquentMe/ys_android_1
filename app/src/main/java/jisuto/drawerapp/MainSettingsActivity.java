@@ -15,8 +15,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
 
-import java.util.List;
-
 import jisuto.drawerapp.utils.SeekBarPreference;
 
 /**
@@ -98,8 +96,13 @@ public class MainSettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        /*setTheme(PreferenceManager.getDefaultSharedPreferences(this).getString("color_theme", "light").equals("dark") ?
+                R.style.DarkAppTheme : R.style.LightAppTheme);*/
+
         super.onCreate(savedInstanceState);
         setupActionBar();
+
+        getFragmentManager().beginTransaction().replace(android.R.id.content, new GeneralPreferenceFragment()).commit();
     }
 
     /**
@@ -134,11 +137,11 @@ public class MainSettingsActivity extends AppCompatPreferenceActivity {
     /**
      * {@inheritDoc}
      */
-    @Override
+    /*@Override
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void onBuildHeaders(List<Header> target) {
         loadHeadersFromResource(R.xml.pref_headers, target);
-    }
+    }*/
 
     /**
      * This method stops fragment injection in malicious applications.
@@ -146,8 +149,7 @@ public class MainSettingsActivity extends AppCompatPreferenceActivity {
      */
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
-                || GeneralPreferenceFragment.class.getName().equals(fragmentName)
-                || DataSyncPreferenceFragment.class.getName().equals(fragmentName);
+                || GeneralPreferenceFragment.class.getName().equals(fragmentName);
                 //|| NotificationPreferenceFragment.class.getName().equals(fragmentName);
     }
 
@@ -163,31 +165,19 @@ public class MainSettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
             bindPreferenceSummaryToValue(findPreference("tab_count"));
-        }
+            bindPreferenceSummaryToValue(findPreference("color_theme"));
 
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), MainSettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
-    }
-
-    /**
-     * This fragment shows data and sync preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class DataSyncPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_data_sync);
-            setHasOptionsMenu(true);
-            //bindPreferenceSummaryToValue(findPreference("max_cache_size"));
+            /*findPreference("color_theme").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    String stringValue = newValue.toString();
+                    if (preference.getKey().equals("color_theme")
+                            && !preference.getSharedPreferences().getString("color_theme", "").equals(stringValue)) {
+                        getActivity().recreate();
+                    }
+                    return true;
+                }
+            });*/
         }
 
         @Override

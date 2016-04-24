@@ -33,11 +33,6 @@ public class CacheImageLoader implements ImageLoader {
         public void cancelRequest() {
             task.cancel(true);
         }
-
-        /*@Override
-        public Bitmap getFullSizeBitmap(int position) {
-            return task.getFullSizeImage(position);
-        }*/
     }
 
     class CacheWorker extends BitmapWorkerTask<Integer> {

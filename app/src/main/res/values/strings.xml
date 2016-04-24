@@ -28,7 +28,7 @@
     <string name="pref_title_display_name">Display name</string>
     <string name="pref_default_display_name">John Smith</string>
 
-    <string name="pref_title_max_cache_size">Max cache size</string>
+    <string name="pref_title_max_cache_size">Max cache size, MB</string>
 
 
     <!-- Example settings for Data & Sync -->
@@ -48,6 +48,12 @@
         <item>4</item>
         <item>5</item>
         <item>6</item>
+    </string-array>
+
+    <string name="pref_title_theme">Theme</string>
+    <string-array name="pref_theme_titles">
+        <item>light</item>
+        <item>dark</item>
     </string-array>
 
 </resources>

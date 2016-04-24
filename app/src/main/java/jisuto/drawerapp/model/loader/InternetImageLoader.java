@@ -89,18 +89,16 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader
     }
 
     private List<String> urls;
-    private transient BitmapCache<String> cache;
     private LoadListener listener;
 
-    public InternetImageLoader(RequestQueue queue, ImageCache imageCache) {
-        super(queue, imageCache);
+    public InternetImageLoader(RequestQueue queue) {
+        super(queue, SingletonCarrier.getInstance().getCommonCache());
         urls = Collections.emptyList();
-        cache = new BitmapCache<>(5 * 1024);
     }
 
-    private void readObject(ObjectInputStream in) {
-        cache = new BitmapCache<>(5 * 1024);
-    }
+    /*private void readObject(ObjectInputStream in) {
+        //Seems to be not needed here.
+    }*/
 
     public class InternetImageContainer implements ImageHolder.ImageContainer {
 

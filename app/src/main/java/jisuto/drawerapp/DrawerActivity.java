@@ -34,7 +34,6 @@ public class DrawerActivity extends AppCompatActivity
     private ViewPager viewPager;
     private int tab_count = 3;
     private FragmentManager mFragmentManager;
-    private FragmentTransaction mFragmentTransaction;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
 
@@ -70,7 +69,7 @@ public class DrawerActivity extends AppCompatActivity
         //mNavigationView.getMenu().getItem(0).setChecked(true); //initialize drawer menu
 
         mFragmentManager = getSupportFragmentManager();
-        mFragmentTransaction = mFragmentManager.beginTransaction();
+        mFragmentManager.beginTransaction().commit();
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         viewPager = (ViewPager) findViewById(R.id.viewpager);

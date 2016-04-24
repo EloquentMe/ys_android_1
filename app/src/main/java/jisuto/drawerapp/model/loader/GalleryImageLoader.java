@@ -28,6 +28,8 @@ import jisuto.drawerapp.utils.SingletonCarrier;
 
 public class GalleryImageLoader implements ImageLoader {
 
+    public static final String LABEL = "Gallery";
+
     private class GalleryContainer implements ImageHolder.ImageContainer, Serializable {
         GalleryTask task;
 
@@ -59,20 +61,20 @@ public class GalleryImageLoader implements ImageLoader {
             if (pic == null) { // OOM / bad id
                 pic = ImageScaler.getPlaceholder(SingletonCarrier.getInstance().getContext().getResources());
             }
-            thumbCache.put(imgId, pic);
+            thumbCache.putBitmap(LABEL + imgId, pic);
             return pic;
         }
     }
 
     private List<Long> itemList;
-    private transient BitmapCache<Long> thumbCache;
+    private transient com.android.volley.toolbox.ImageLoader.ImageCache thumbCache;
     private transient BitmapFactory.Options thumbOptions;
 
 
     @Override
     public void setHolderContent(int position, ImageHolder holder) {
         final long imgId = itemList.get(position);
-        Bitmap pic = thumbCache.get(imgId);
+        Bitmap pic = thumbCache.getBitmap(LABEL + imgId);
         if (pic == null) {
             GalleryTask task = new GalleryTask(holder.getImage());
             Context context = SingletonCarrier.getInstance().getContext();
@@ -94,7 +96,7 @@ public class GalleryImageLoader implements ImageLoader {
     public GalleryImageLoader() {
         itemList = new ArrayList<>();
         thumbOptions = new BitmapFactory.Options();
-        thumbCache = new BitmapCache<>(SingletonCarrier.DEFAULT_MEM_CACHE_SIZE);
+        thumbCache = SingletonCarrier.getInstance().getCommonCache();
     }
 
     @Override
@@ -146,6 +148,6 @@ public class GalleryImageLoader implements ImageLoader {
         in.defaultReadObject();
 
         thumbOptions = new BitmapFactory.Options();
-        thumbCache = new BitmapCache<>(SingletonCarrier.DEFAULT_MEM_CACHE_SIZE);
+        thumbCache = SingletonCarrier.getInstance().getCommonCache();
     }
 }

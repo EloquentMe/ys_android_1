@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntegerRes;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
@@ -42,9 +43,11 @@ public class SingletonCarrier {
     private ImageLoader mInternetImageLoader;
     private ImageLoader mCacheImageLoader;
     private ImageLoader mGalleryImageLoader;
+    private InternetImageCache mCache;
 
     private Context mCtx;
     private int mColumnCount;
+    private int mMemoryCacheSize = 10;
 
     public int getColumnCount() {
         return mColumnCount;
@@ -55,7 +58,7 @@ public class SingletonCarrier {
     }
 
     private class InternetImageCache implements com.android.volley.toolbox.ImageLoader.ImageCache {
-        private final BitmapCache<String> lruCache = new BitmapCache<>(2 * DEFAULT_MEM_CACHE_SIZE);
+        private final BitmapCache<String> lruCache = new BitmapCache<>(mMemoryCacheSize * 1024);
 
         private final DiskBasedCache diskCache = new DiskBasedCache(mCtx.getCacheDir(), 1024 * 1024 * 50);
 
@@ -89,13 +92,22 @@ public class SingletonCarrier {
         mCtx = context;//.getApplicationContext();
         mRequestQueue = getRequestQueue();
 
-        mInternetImageLoader = new InternetImageLoader(mRequestQueue, new InternetImageCache());
-        mCacheImageLoader = new CacheImageLoader();
-        mGalleryImageLoader = new GalleryImageLoader();
-        mContentResolver = context.getContentResolver();
-
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mCtx);
         mColumnCount = Integer.parseInt(sharedPreferences.getString("tab_count", String.valueOf(DEFAULT_COLUMN_COUNT)));
+        mMemoryCacheSize = sharedPreferences.getInt("max_cache_size", 10);
+        if (mMemoryCacheSize < 1) {
+            Log.w("Singletonium", "Cache size cannot be less than 1.");
+            mMemoryCacheSize = 1;
+        }
+        Log.i("Singletonium", "In-memory cache size=" + mMemoryCacheSize);
+        mCache = new InternetImageCache();
+    }
+
+    private void initLoaders() {
+        mInternetImageLoader = new InternetImageLoader(mRequestQueue);
+        mCacheImageLoader = new CacheImageLoader();
+        mGalleryImageLoader = new GalleryImageLoader();
+        mContentResolver = mCtx.getContentResolver();
     }
 
     public static synchronized SingletonCarrier getInstance() {
@@ -110,6 +122,7 @@ public class SingletonCarrier {
             Log.i("DrawerApp", "Singletonium: Already initialized");
         } else {
             mInstance = new SingletonCarrier(context);
+            mInstance.initLoaders();
         }
     }
 
@@ -141,5 +154,9 @@ public class SingletonCarrier {
     public ContentResolver getContentResolver() {
         return mContentResolver;
         //TODO: LoaderManager!
+    }
+
+    public com.android.volley.toolbox.ImageLoader.ImageCache getCommonCache () {
+        return mCache;
     }
 }

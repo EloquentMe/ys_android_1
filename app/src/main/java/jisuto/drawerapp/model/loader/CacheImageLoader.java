@@ -3,23 +3,22 @@ package jisuto.drawerapp.model.loader;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.widget.ImageView;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.lang.ref.SoftReference;
 import java.util.Random;
 
 import jisuto.drawerapp.R;
 import jisuto.drawerapp.model.ImageHolder;
-import jisuto.drawerapp.utils.BitmapCache;
 import jisuto.drawerapp.utils.ImageScaler;
 import jisuto.drawerapp.utils.LoadListener;
 
 import jisuto.drawerapp.utils.SingletonCarrier;
 
 public class CacheImageLoader implements ImageLoader {
+
+    public static final String LABEL = "Local";
 
     class CacheImageContainer implements ImageHolder.ImageContainer {
 
@@ -49,7 +48,7 @@ public class CacheImageLoader implements ImageLoader {
             Context context = SingletonCarrier.getInstance().getContext();
             Bitmap pic = ImageScaler.decodeSampledBitmapFromResource(context.getResources(), allItems[pos]
                     , 100, 100);
-            itemList.put(pos, pic);
+            thumbCache.putBitmap(LABEL + pos, pic);
             return pic;
         }
 
@@ -63,13 +62,11 @@ public class CacheImageLoader implements ImageLoader {
             R.drawable.image_5,
             R.drawable.image_6};
 
-    private static final int MEM_CACHE_SIZE = 3 * SingletonCarrier.DEFAULT_MEM_CACHE_SIZE;
-
     static {
         shuffleItems();
     }
 
-    private transient BitmapCache<Integer> itemList;
+    private transient com.android.volley.toolbox.ImageLoader.ImageCache thumbCache;
     private LoadListener eventListener;
 
     private static void shuffleItems() {
@@ -86,19 +83,19 @@ public class CacheImageLoader implements ImageLoader {
     }
 
     public CacheImageLoader() {
-        itemList = new BitmapCache<>(MEM_CACHE_SIZE);
+        thumbCache = SingletonCarrier.getInstance().getCommonCache();
     }
 
     private final void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-
-        itemList = new BitmapCache<>(MEM_CACHE_SIZE);
+        thumbCache = SingletonCarrier.getInstance().getCommonCache();
     }
 
     @Override
     public void setHolderContent(int position, ImageHolder holder) {
         ImageView view = holder.getImage();
-        Bitmap pic = itemList.get(position % allItems.length);
+        //"Local" label for distinction between different sources
+        Bitmap pic = thumbCache.getBitmap(LABEL + (position % allItems.length));
         if (pic == null) {
             boolean cancelled = BitmapWorkerTask.potentialCancel(position, view);
             if (cancelled) {

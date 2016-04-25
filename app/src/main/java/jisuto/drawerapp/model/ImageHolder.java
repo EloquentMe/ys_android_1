@@ -67,7 +67,7 @@ public class ImageHolder extends RecyclerView.ViewHolder implements ImageLoader.
             Intent subActivity = new Intent(context,
                     FullscreenActivity.class);
             subActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            //subActivity.putExtra("bitmap", byteArray);
+            //subActivity.putExtra("Source", ImageSource.CACHE);
             context.startActivity(subActivity);/*,
                         ActivityOptions.makeSceneTransitionAnimation((Activity) v.getContext(),
                                 v.findViewById(R.id.image_view), "image").toBundle());*/

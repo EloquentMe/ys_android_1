@@ -1,14 +1,11 @@
 package jisuto.drawerapp.utils;
 
-import android.app.LoaderManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
-import android.support.annotation.IntegerRes;
-import android.support.v4.util.LruCache;
 import android.util.Log;
 
 import com.android.volley.Cache;
@@ -19,7 +16,6 @@ import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.Volley;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Serializable;
 
 import jisuto.drawerapp.model.ImageHolder;
 import jisuto.drawerapp.model.loader.CacheImageLoader;
@@ -34,7 +30,6 @@ public class SingletonCarrier {
         public void cancelRequest() {}
     };
 
-    public static final int DEFAULT_MEM_CACHE_SIZE = 5 * 1024;
     public static int DEFAULT_COLUMN_COUNT = 4;
 
     private static SingletonCarrier mInstance;
@@ -43,7 +38,7 @@ public class SingletonCarrier {
     private ImageLoader mInternetImageLoader;
     private ImageLoader mCacheImageLoader;
     private ImageLoader mGalleryImageLoader;
-    private InternetImageCache mCache;
+    private CommonImageCache mCache;
 
     private Context mCtx;
     private int mColumnCount;
@@ -57,7 +52,7 @@ public class SingletonCarrier {
         return mGalleryImageLoader;
     }
 
-    private class InternetImageCache implements com.android.volley.toolbox.ImageLoader.ImageCache {
+    private class CommonImageCache implements com.android.volley.toolbox.ImageLoader.ImageCache {
         private final BitmapCache<String> lruCache = new BitmapCache<>(mMemoryCacheSize * 1024);
 
         private final DiskBasedCache diskCache = new DiskBasedCache(mCtx.getCacheDir(), 1024 * 1024 * 50);
@@ -100,7 +95,7 @@ public class SingletonCarrier {
             mMemoryCacheSize = 1;
         }
         Log.i("Singletonium", "In-memory cache size=" + mMemoryCacheSize);
-        mCache = new InternetImageCache();
+        mCache = new CommonImageCache();
     }
 
     private void initLoaders() {

@@ -22,7 +22,7 @@ public class ImageScaler {
     private static SoftReference<Bitmap> placeholderRef;
 
     static {
-        placeholderRef = new SoftReference<Bitmap>(null);
+        placeholderRef = new SoftReference<>(null);
     }
 
     private static int calculateInSampleSize(
@@ -78,8 +78,8 @@ public class ImageScaler {
         buf.mark(0);
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeStream(in, null, options);
+        //options.inJustDecodeBounds = true;
+        //BitmapFactory.decodeStream(in, null, options);
 
         // Calculate inSampleSize
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);

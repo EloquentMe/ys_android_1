@@ -59,4 +59,8 @@ public class FullscreenFetcher {
         task.execute(id);
     }
 
+    public int total() {
+        return loader.total();
+    }
+
 }

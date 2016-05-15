@@ -172,7 +172,7 @@ public class DrawerActivity extends AppCompatActivity
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
             String email = getString(R.string.author_email);
-            intent.putExtra(Intent.EXTRA_EMAIL, new String []{ email});
+            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
             intent.putExtra(Intent.EXTRA_SUBJECT, "Report");
 
             startActivity(Intent.createChooser(intent, "Send Email"));
@@ -183,12 +183,12 @@ public class DrawerActivity extends AppCompatActivity
     }
 
     private Uri getOutputMediaFileUri() {
-        File mediaStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        if (mediaStorageDir == null || ! mediaStorageDir.exists() && !mediaStorageDir.mkdirs()) {
+        File mediaStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM + File.separator + "Camera");
+        if (mediaStorageDir == null || !mediaStorageDir.exists() && !mediaStorageDir.mkdirs()) {
             return null;
         }
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
-        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_"+ timeStamp + ".jpg");
+        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
         mCurrentPhotoPath = Uri.fromFile(mediaFile);
         return Uri.fromFile(mediaFile);
     }
@@ -197,7 +197,6 @@ public class DrawerActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            //TODO: not in "Camera" folder, nor scanned by Gallery
             Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
             mediaScanIntent.setData(mCurrentPhotoPath);
             this.sendBroadcast(mediaScanIntent);

@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -23,6 +24,7 @@ import java.util.List;
 import jisuto.drawerapp.model.ImageHolder;
 import jisuto.drawerapp.utils.BitmapCache;
 import jisuto.drawerapp.utils.ImageScaler;
+import jisuto.drawerapp.utils.ImageSource;
 import jisuto.drawerapp.utils.LoadListener;
 import jisuto.drawerapp.utils.SingletonCarrier;
 
@@ -43,6 +45,11 @@ public class GalleryImageLoader implements ImageLoader {
         @Override
         public void cancelRequest() {
             task.cancel(false);
+        }
+
+        @Override
+        public ImageSource getSource() {
+            return ImageSource.GALLERY;
         }
     }
 
@@ -120,12 +127,13 @@ public class GalleryImageLoader implements ImageLoader {
 
     @Override
     public Bitmap getBitmap(Object id) throws IOException {
+        Log.d("GalleryImageLoader", "Id: " + id);
         SingletonCarrier carrier = SingletonCarrier.getInstance();
         ContentResolver resolver = carrier.getContentResolver();
         String[] projection = {MediaStore.Images.Media.DATA,
                 MediaStore.Images.Media.DISPLAY_NAME};
         String where = MediaStore.Images.ImageColumns._ID.concat(" = ?");
-        String[] args = new String[]{String.valueOf(id)};
+        String[] args = new String[]{String.valueOf(itemList.get((int) id))};
         Cursor image = MediaStore.Images.Media.query(resolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 projection,
                 where, args, MediaStore.Images.ImageColumns._ID);
@@ -134,7 +142,8 @@ public class GalleryImageLoader implements ImageLoader {
             String path = image.getString(0);
             String name = image.getString(1);
             image.close();
-            InputStream in = resolver.openInputStream(Uri.parse(path));
+            Log.d("GalleryImageLoader", "File: " + path);
+            InputStream in = resolver.openInputStream(Uri.parse("file://" + path));
             Display display = ((WindowManager) carrier.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
             Point size = new Point();
             display.getSize(size);

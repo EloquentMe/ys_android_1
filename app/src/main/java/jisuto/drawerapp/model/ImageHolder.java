@@ -16,6 +16,7 @@ import java.io.Serializable;
 
 import jisuto.drawerapp.FullscreenActivity;
 import jisuto.drawerapp.R;
+import jisuto.drawerapp.utils.ImageSource;
 import jisuto.drawerapp.utils.SingletonCarrier;
 
 public class ImageHolder extends RecyclerView.ViewHolder implements ImageLoader.ImageListener,
@@ -24,6 +25,7 @@ public class ImageHolder extends RecyclerView.ViewHolder implements ImageLoader.
 
     public interface ImageContainer extends Serializable {
         void cancelRequest();
+        ImageSource getSource();
         //Bitmap getFullSizeBitmap(int position);
     }
 
@@ -63,27 +65,25 @@ public class ImageHolder extends RecyclerView.ViewHolder implements ImageLoader.
             byte[] byteArray = stream.toByteArray();
             */Context context = SingletonCarrier.getInstance().getContext();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && newApi) {
-            Log.i("DrawerApp:", "ImageHolder: New API.");
+            Log.i("DrawerApp", "ImageHolder: New API.");
             Intent subActivity = new Intent(context,
                     FullscreenActivity.class);
             subActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            //subActivity.putExtra("Source", ImageSource.CACHE);
+            subActivity.putExtra("source", container.getSource());
+            subActivity.putExtra("position", getAdapterPosition());
             context.startActivity(subActivity);/*,
                         ActivityOptions.makeSceneTransitionAnimation((Activity) v.getContext(),
                                 v.findViewById(R.id.image_view), "image").toBundle());*/
         } else {
-            Log.i("DrawerApp:", "ImageHolder: Old API.");
+            Log.i("DrawerApp", "ImageHolder: Old API.");
             int[] screenLocation = new int[2];
             v.getLocationOnScreen(screenLocation);
 
             Intent subActivity = new Intent(context,
                     FullscreenActivity.class);
             //subActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            int orientation = context.getResources().getConfiguration().orientation;
-            subActivity.
-                    putExtra("orientation", orientation).
-                    putExtra("left", screenLocation[0]).
-                    putExtra("top", screenLocation[1]);
+            subActivity.putExtra("source", container.getSource());
+            subActivity.putExtra("position", getAdapterPosition());
             Log.d("BadApi", "subAct");
             context.startActivity(subActivity);
             Log.d("BadApi", "SubAct Created");

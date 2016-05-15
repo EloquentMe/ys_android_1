@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,20 +14,23 @@ import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 
+import jisuto.drawerapp.model.loader.FullscreenFetcher;
+import jisuto.drawerapp.utils.ImageSource;
+
 public class FullscreenImageAdapter extends PagerAdapter {
     private Activity _activity;
-    private ArrayList<String> _imagePaths;
     private LayoutInflater inflater;
+    private FullscreenFetcher fetcher;
 
     // constructor
-    public FullscreenImageAdapter(Activity activity) {
+    public FullscreenImageAdapter(AppCompatActivity activity, ImageSource source) {
         this._activity = activity;
-        //this._imagePaths = imagePaths;
-    }
+        fetcher = new FullscreenFetcher(source);
 
+    }
     @Override
     public int getCount() {
-        return 1; //TODO: no viewpager functionality
+        return fetcher.total();
     }
 
     @Override
@@ -36,35 +40,14 @@ public class FullscreenImageAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        ImageView imgDisplay;
-        Button btnClose;
-
         inflater = (LayoutInflater) _activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View viewLayout = inflater.inflate(R.layout.layout_fullscreen_image, container,
-                false);
-
+        View viewLayout = inflater.inflate(R.layout.layout_fullscreen_image, container, false);
         View touchImageView = viewLayout.findViewById(R.id.touch_image_view);
         touchImageView.setOnClickListener((FullscreenActivity)_activity);
-
-        /*imgDisplay = (ImageView) viewLayout.findViewById(R.id.imgDisplay);
-        btnClose = (Button) viewLayout.findViewById(R.id.btnClose);
-
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        Bitmap bitmap = BitmapFactory.decodeFile(_imagePaths.get(position), options);
-        imgDisplay.setImageBitmap(bitmap);
-
-        // close button click event
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                _activity.finish();
-            }
-        });*/
+        fetcher.fetchImage(position, (ImageView) touchImageView);
 
         container.addView(viewLayout);
-
         return viewLayout;
     }
 

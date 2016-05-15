@@ -12,6 +12,7 @@ import java.util.Random;
 import jisuto.drawerapp.R;
 import jisuto.drawerapp.model.ImageHolder;
 import jisuto.drawerapp.utils.ImageScaler;
+import jisuto.drawerapp.utils.ImageSource;
 import jisuto.drawerapp.utils.LoadListener;
 
 import jisuto.drawerapp.utils.SingletonCarrier;
@@ -31,6 +32,11 @@ public class CacheImageLoader implements ImageLoader {
         @Override
         public void cancelRequest() {
             task.cancel(true);
+        }
+
+        @Override
+        public ImageSource getSource() {
+            return ImageSource.CACHE;
         }
     }
 
@@ -130,6 +136,6 @@ public class CacheImageLoader implements ImageLoader {
     public Bitmap getBitmap(Object id) throws IOException {
         int resId = ((Integer) id ) % allItems.length;
         Resources res = SingletonCarrier.getInstance().getContext().getResources();
-        return ImageScaler.decodeSampledBitmapFromResource(res, resId);
+        return ImageScaler.decodeSampledBitmapFromResource(res, allItems[resId]);
     }
 }

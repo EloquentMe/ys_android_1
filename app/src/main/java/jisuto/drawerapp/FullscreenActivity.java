@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import jisuto.drawerapp.utils.ImageSource;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -113,9 +115,13 @@ public class FullscreenActivity extends AppCompatActivity implements View.OnClic
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.fullscreen_pager);
 
-        FullscreenImageAdapter adapter = new FullscreenImageAdapter(FullscreenActivity.this);
+        ImageSource source = (ImageSource) getIntent().getSerializableExtra("source");
+        int position = getIntent().getIntExtra("position", 0);
+
+        FullscreenImageAdapter adapter = new FullscreenImageAdapter(FullscreenActivity.this, source);
 
         viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(position);
     }
 
     @Override

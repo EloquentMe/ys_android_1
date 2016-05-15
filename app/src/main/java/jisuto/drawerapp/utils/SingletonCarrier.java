@@ -25,9 +25,12 @@ import jisuto.drawerapp.model.loader.InternetImageLoader;
 
 public class SingletonCarrier {
 
-    public static final int SCALE_FACTOR = 3;
+    public static final int SCALE_FACTOR = 1;
     public static ImageHolder.ImageContainer EMPTY_CONTAINER = new ImageHolder.ImageContainer() {
         public void cancelRequest() {}
+        public ImageSource getSource() {
+            return ImageSource.CACHE;
+        }
     };
 
     public static int DEFAULT_COLUMN_COUNT = 4;

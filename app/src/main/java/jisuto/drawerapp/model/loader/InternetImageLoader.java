@@ -25,6 +25,7 @@ import java.util.List;
 import jisuto.drawerapp.model.ImageHolder;
 import jisuto.drawerapp.utils.BitmapCache;
 import jisuto.drawerapp.utils.ImageScaler;
+import jisuto.drawerapp.utils.ImageSource;
 import jisuto.drawerapp.utils.LoadListener;
 import jisuto.drawerapp.utils.SingletonCarrier;
 
@@ -50,11 +51,7 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader
                     }
                     return imgUrls;
                 }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (XmlPullParserException e) {
+            } catch (IOException | XmlPullParserException e) {
                 e.printStackTrace();
             }
             return null;
@@ -69,12 +66,8 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader
                 String prefix = parser.getPrefix();
                 // Starts by looking for the entry tag
                 if ("f".equals(prefix) && "img".equals(name)) {
-                    for (int i = 0; i<parser.getAttributeCount(); i++) {
-                        if ("height".equals(parser.getAttributeName(i))) {
-                            if ("75".equals(parser.getAttributeValue(i))) {
-                                return parser.getAttributeValue(i+1);
-                            }
-                        }
+                    if (parser.getAttributeValue(null, "size").equals("XXS")) {
+                        return parser.getAttributeValue(null, "href");
                     }
                 }
             }
@@ -96,10 +89,6 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader
         urls = Collections.emptyList();
     }
 
-    /*private void readObject(ObjectInputStream in) {
-        //Seems to be not needed here.
-    }*/
-
     public class InternetImageContainer implements ImageHolder.ImageContainer {
 
         private ImageContainer trueContainer;
@@ -111,6 +100,11 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader
         @Override
         public void cancelRequest() {
             trueContainer.cancelRequest();
+        }
+
+        @Override
+        public ImageSource getSource() {
+            return ImageSource.INTERNET;
         }
 
     }

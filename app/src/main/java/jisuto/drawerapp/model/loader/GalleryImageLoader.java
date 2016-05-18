@@ -13,7 +13,6 @@ import android.view.Display;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -22,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jisuto.drawerapp.model.ImageHolder;
-import jisuto.drawerapp.utils.BitmapCache;
 import jisuto.drawerapp.utils.ImageScaler;
 import jisuto.drawerapp.utils.ImageSource;
 import jisuto.drawerapp.utils.LoadListener;
@@ -31,6 +29,13 @@ import jisuto.drawerapp.utils.SingletonCarrier;
 public class GalleryImageLoader implements ImageLoader {
 
     public static final String LABEL = "Gallery";
+
+    private static ImageHolder.ImageContainer CACHED_DATA_CONTAINER = new ImageHolder.ImageContainer() {
+        public void cancelRequest() {}
+        public ImageSource getSource() {
+            return ImageSource.GALLERY;
+        }
+    };
 
     private class GalleryContainer implements ImageHolder.ImageContainer, Serializable {
         GalleryTask task;
@@ -90,7 +95,7 @@ public class GalleryImageLoader implements ImageLoader {
             holder.setContainer(new GalleryContainer(task));
             task.execute(imgId);
         } else {
-            holder.setContainer(SingletonCarrier.EMPTY_CONTAINER);
+            holder.setContainer(CACHED_DATA_CONTAINER);
             holder.getImage().setImageBitmap(pic);
         }
     }
@@ -108,6 +113,7 @@ public class GalleryImageLoader implements ImageLoader {
 
     @Override
     public void acquireCount() {
+        itemList = new ArrayList<>();
         String[] projection = {MediaStore.Images.Media._ID};
         ContentResolver resolver = SingletonCarrier.getInstance().getContentResolver();
         Cursor galleryCursor =

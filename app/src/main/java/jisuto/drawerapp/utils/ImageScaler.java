@@ -6,6 +6,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.text.LoginFilter;
+import android.util.Log;
 import android.view.WindowManager;
 
 import java.io.BufferedInputStream;
@@ -34,13 +36,13 @@ public class ImageScaler {
 
         if (height > reqHeight || width > reqWidth) {
 
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
+            //final int halfHeight = height / 2;
+            //final int halfWidth = width / 2;
 
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
             // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
+            while ((height / inSampleSize) > reqHeight
+                    && (width / inSampleSize) > reqWidth) {
                 inSampleSize *= 2;
             }
         }
@@ -51,7 +53,7 @@ public class ImageScaler {
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
                                                          int reqWidth, int reqHeight) {
         // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
+        BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeResource(res, resId, options);
 
@@ -60,7 +62,9 @@ public class ImageScaler {
 
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeResource(res, resId, options);
+        Bitmap bitmap = BitmapFactory.decodeResource(res, resId, options);
+        Log.d("DrawerActivity", "" + bitmap.getByteCount() / 1024 / 1024);
+        return bitmap;
     }
 
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId) {
@@ -87,7 +91,9 @@ public class ImageScaler {
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         buf.reset();
-        return BitmapFactory.decodeStream(in, null, options);
+        Bitmap b = BitmapFactory.decodeStream(in, null, options);
+
+        return b;
     }
 
     public static Bitmap getPlaceholder(Resources res) {

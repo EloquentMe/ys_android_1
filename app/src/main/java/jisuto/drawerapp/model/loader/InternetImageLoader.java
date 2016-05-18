@@ -12,9 +12,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 import jisuto.drawerapp.model.ImageHolder;
-import jisuto.drawerapp.utils.BitmapCache;
 import jisuto.drawerapp.utils.ImageScaler;
 import jisuto.drawerapp.utils.ImageSource;
 import jisuto.drawerapp.utils.LoadListener;
@@ -76,17 +73,17 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader
 
         @Override
         protected void onPostExecute(List<String> xml) {
-            urls = xml;
+            thumbUrls = xml;
             listener.countAcquired();
         }
     }
 
-    private List<String> urls;
+    private List<String> thumbUrls;
     private LoadListener listener;
 
     public InternetImageLoader(RequestQueue queue) {
         super(queue, SingletonCarrier.getInstance().getCommonCache());
-        urls = Collections.emptyList();
+        thumbUrls = Collections.emptyList();
     }
 
     public class InternetImageContainer implements ImageHolder.ImageContainer {
@@ -114,7 +111,7 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader
      */
     @Override
     public void setHolderContent(int position, ImageHolder holder) {
-        String url = urls.get(position);
+        String url = thumbUrls.get(position);
         ImageContainer volleyContainer = get(url, holder);
         InternetImageContainer container = new InternetImageContainer(volleyContainer);
         holder.setContainer(container);
@@ -122,7 +119,7 @@ public class InternetImageLoader extends com.android.volley.toolbox.ImageLoader
 
     @Override
     public int total() {
-        return urls == null ? 0 : urls.size();
+        return thumbUrls == null ? 0 : thumbUrls.size();
     }
 
     @Override

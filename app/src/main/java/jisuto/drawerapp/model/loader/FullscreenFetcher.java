@@ -15,6 +15,7 @@ import jisuto.drawerapp.utils.SingletonCarrier;
 
 public class FullscreenFetcher {
 
+
     private class FullscreenTask extends BitmapWorkerTask<Object> {
 
         public FullscreenTask(ImageView imageView) {
@@ -24,7 +25,8 @@ public class FullscreenFetcher {
         @Override
         protected Bitmap doInBackground(Object... params) {
             try {
-                return loader.getBitmap(params[0]);
+                Integer i = (Integer) params[0];
+                return loader.getBitmap(i);
             } catch (IOException e) {
                 Log.e("DrawerApp", "Bad file", e);
                 Resources res = SingletonCarrier.getInstance().getContext().getResources();
@@ -51,16 +53,23 @@ public class FullscreenFetcher {
 
     }
 
-    public void fetchImage(Object id, ImageView victim) {
+    public void fetchImage(Integer position, ImageView victim) {
         Resources res = SingletonCarrier.getInstance().getContext().getResources();
-        BitmapWorkerTask task = new FullscreenTask(victim);
+        BitmapWorkerTask<Object> task = new FullscreenTask(victim);
         BitmapDrawable drawable = new AsyncDrawable(res, task);
         victim.setImageDrawable(drawable);
-        task.execute(id);
+        task.execute(position);
     }
 
     public int total() {
         return loader.total();
     }
 
+    public String getTitle(int position) {
+        return loader.getTitle(position);
+    }
+
+    public String getAuthor(int position) {
+        return loader.getAuthor(position);
+    }
 }

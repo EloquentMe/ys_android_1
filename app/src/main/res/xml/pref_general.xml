@@ -29,4 +29,9 @@
         android:key="max_cache_size"
         android:title="@string/pref_title_max_cache_size"/>
 
+    <SwitchPreference
+        android:defaultValue="false"
+        android:title="Clear cache on restart"
+        android:key="clear_cache"/>
+
 </PreferenceScreen>

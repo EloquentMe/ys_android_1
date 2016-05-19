@@ -46,6 +46,8 @@ public class FullscreenImageAdapter extends PagerAdapter {
         View touchImageView = viewLayout.findViewById(R.id.touch_image_view);
         touchImageView.setOnClickListener((FullscreenActivity)_activity);
         fetcher.fetchImage(position, (ImageView) touchImageView);
+        String author = fetcher.getAuthor(position);
+        String title = fetcher.getTitle(position);
 
         container.addView(viewLayout);
         return viewLayout;

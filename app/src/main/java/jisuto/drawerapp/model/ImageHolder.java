@@ -26,7 +26,6 @@ public class ImageHolder extends RecyclerView.ViewHolder implements ImageLoader.
     public interface ImageContainer extends Serializable {
         void cancelRequest();
         ImageSource getSource();
-        //Bitmap getFullSizeBitmap(int position);
     }
 
     private final ImageView image;

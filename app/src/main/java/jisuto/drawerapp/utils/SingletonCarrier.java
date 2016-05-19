@@ -50,33 +50,47 @@ public class SingletonCarrier {
     }
 
     private class CommonImageCache implements com.android.volley.toolbox.ImageLoader.ImageCache {
-        private final BitmapCache<String> lruCache = new BitmapCache<>(mMemoryCacheSize * 1024);
+        private final BitmapCache<String> lruCache;
 
-        private final DiskBasedCache diskCache = new DiskBasedCache(mCtx.getCacheDir(), 1024 * 1024 * 50);
+        private final DiskBasedCache diskCache;
+
+        public CommonImageCache() {
+            lruCache = new BitmapCache<>(mMemoryCacheSize * 1024);
+            diskCache = new DiskBasedCache(mCtx.getCacheDir(), 1024 * 1024 * 150);
+            diskCache.initialize();
+        }
 
         @Override
-        public Bitmap getBitmap(String url) {
-            Bitmap bitmap = lruCache.get(url);
+        public Bitmap getBitmap(String key) {
+            Bitmap bitmap = lruCache.get(key);
             if (bitmap == null) {
-                Cache.Entry entry = diskCache.get(url);
+                Log.d("SingletonCarrier", "Mem Cache miss: " + key);
+                Cache.Entry entry = diskCache.get(key);
                 if (entry == null) {
+                    Log.d("SingletonCarrier", "Disk Cache miss: " + key);
                     return null;
                 }
                 byte[] data = entry.data;
                 bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                lruCache.put(key, bitmap);
             }
             return bitmap;
         }
 
         @Override
-        public void putBitmap(String url, Bitmap bitmap) {
-            lruCache.put(url, bitmap);
+        public void putBitmap(String key, Bitmap bitmap) {
+            lruCache.put(key, bitmap);
 
             Cache.Entry entry = new Cache.Entry();
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
             entry.data = byteStream.toByteArray();
-            diskCache.put(url, entry);
+            diskCache.put(key, entry);
+        }
+
+        public void clear() {
+            lruCache.evictAll();
+            diskCache.clear();
         }
     }
 
@@ -87,12 +101,17 @@ public class SingletonCarrier {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mCtx);
         mColumnCount = Integer.parseInt(sharedPreferences.getString("tab_count", String.valueOf(DEFAULT_COLUMN_COUNT)));
         mMemoryCacheSize = sharedPreferences.getInt("max_cache_size", 10);
+
         if (mMemoryCacheSize < 1) {
             Log.w("Singletonium", "Cache size cannot be less than 1.");
             mMemoryCacheSize = 1;
         }
         Log.i("Singletonium", "In-memory cache size=" + mMemoryCacheSize);
         mCache = new CommonImageCache();
+        boolean clearCache = sharedPreferences.getBoolean("clear_cache", false);
+        if (clearCache) {
+            mCache.clear();
+        }
     }
 
     private void initLoaders() {

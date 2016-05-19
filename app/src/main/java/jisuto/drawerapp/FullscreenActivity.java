@@ -95,7 +95,6 @@ public class FullscreenActivity extends AppCompatActivity implements View.OnClic
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
-        //mContentView = findViewById(R.id.fullscreen_content);
         mContentView = findViewById(R.id.fullscreen_content);
 
 

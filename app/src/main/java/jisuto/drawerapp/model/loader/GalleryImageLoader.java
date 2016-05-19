@@ -73,20 +73,20 @@ public class GalleryImageLoader implements ImageLoader {
             if (pic == null) { // OOM / bad id
                 pic = ImageScaler.getPlaceholder(SingletonCarrier.getInstance().getContext().getResources());
             }
-            thumbCache.putBitmap(LABEL + imgId, pic);
+            cache.putBitmap(LABEL + imgId, pic);
             return pic;
         }
     }
 
     private List<Long> itemList;
-    private transient com.android.volley.toolbox.ImageLoader.ImageCache thumbCache;
+    private transient com.android.volley.toolbox.ImageLoader.ImageCache cache;
     private transient BitmapFactory.Options thumbOptions;
 
 
     @Override
     public void setHolderContent(int position, ImageHolder holder) {
         final long imgId = itemList.get(position);
-        Bitmap pic = thumbCache.getBitmap(LABEL + imgId);
+        Bitmap pic = cache.getBitmap(LABEL + imgId);
         if (pic == null) {
             GalleryTask task = new GalleryTask(holder.getImage());
             Context context = SingletonCarrier.getInstance().getContext();
@@ -108,7 +108,7 @@ public class GalleryImageLoader implements ImageLoader {
     public GalleryImageLoader() {
         itemList = new ArrayList<>();
         thumbOptions = new BitmapFactory.Options();
-        thumbCache = SingletonCarrier.getInstance().getCommonCache();
+        cache = SingletonCarrier.getInstance().getCommonCache();
     }
 
     @Override
@@ -120,10 +120,12 @@ public class GalleryImageLoader implements ImageLoader {
                 resolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                         projection, null, null, null);
 
-        while (galleryCursor.moveToNext()) {
-            itemList.add(galleryCursor.getLong(0));
+        if (galleryCursor != null) {
+            while (galleryCursor.moveToNext()) {
+                itemList.add(galleryCursor.getLong(0));
+            }
+            galleryCursor.close();
         }
-        galleryCursor.close();
     }
 
     @Override
@@ -132,14 +134,14 @@ public class GalleryImageLoader implements ImageLoader {
     }
 
     @Override
-    public Bitmap getBitmap(Object id) throws IOException {
-        Log.d("GalleryImageLoader", "Id: " + id);
+    public Bitmap getBitmap(int position) throws IOException {
+        Log.d("GalleryImageLoader", "Id: " + position);
         SingletonCarrier carrier = SingletonCarrier.getInstance();
         ContentResolver resolver = carrier.getContentResolver();
         String[] projection = {MediaStore.Images.Media.DATA,
                 MediaStore.Images.Media.DISPLAY_NAME};
         String where = MediaStore.Images.ImageColumns._ID.concat(" = ?");
-        String[] args = new String[]{String.valueOf(itemList.get((int) id))};
+        String[] args = new String[]{String.valueOf(itemList.get(position))};
         Cursor image = MediaStore.Images.Media.query(resolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 projection,
                 where, args, MediaStore.Images.ImageColumns._ID);
@@ -159,10 +161,20 @@ public class GalleryImageLoader implements ImageLoader {
         }
     }
 
+    @Override
+    public String getAuthor(int position) {
+        return null;
+    }
+
+    @Override
+    public String getTitle(int position) {
+        return null;
+    }
+
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
 
         thumbOptions = new BitmapFactory.Options();
-        thumbCache = SingletonCarrier.getInstance().getCommonCache();
+        cache = SingletonCarrier.getInstance().getCommonCache();
     }
 }

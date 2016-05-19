@@ -19,7 +19,7 @@ import jisuto.drawerapp.utils.SingletonCarrier;
 
 public class CacheImageLoader implements ImageLoader {
 
-    public static final String LABEL = "Local";
+    public static final ImageSource LABEL = ImageSource.CACHE;
 
     class CacheImageContainer implements ImageHolder.ImageContainer {
 
@@ -31,7 +31,9 @@ public class CacheImageLoader implements ImageLoader {
 
         @Override
         public void cancelRequest() {
-            task.cancel(true);
+            if (task != null) {
+                task.cancel(true);
+            }
         }
 
         @Override
@@ -54,7 +56,7 @@ public class CacheImageLoader implements ImageLoader {
             Context context = SingletonCarrier.getInstance().getContext();
             Bitmap pic = ImageScaler.decodeSampledBitmapFromResource(context.getResources(), allItems[pos]
                     , 100, 100);
-            thumbCache.putBitmap(LABEL + pos, pic);
+            cache.putBitmap(LABEL.name() + pos, pic);
             return pic;
         }
 
@@ -72,7 +74,7 @@ public class CacheImageLoader implements ImageLoader {
         shuffleItems();
     }
 
-    private transient com.android.volley.toolbox.ImageLoader.ImageCache thumbCache;
+    private transient com.android.volley.toolbox.ImageLoader.ImageCache cache;
     private LoadListener eventListener;
 
     private static void shuffleItems() {
@@ -89,19 +91,19 @@ public class CacheImageLoader implements ImageLoader {
     }
 
     public CacheImageLoader() {
-        thumbCache = SingletonCarrier.getInstance().getCommonCache();
+        cache = SingletonCarrier.getInstance().getCommonCache();
     }
 
-    private final void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        thumbCache = SingletonCarrier.getInstance().getCommonCache();
+        cache = SingletonCarrier.getInstance().getCommonCache();
     }
 
     @Override
     public void setHolderContent(int position, ImageHolder holder) {
         ImageView view = holder.getImage();
         //"Local" label for distinction between different sources
-        Bitmap pic = thumbCache.getBitmap(LABEL + (position % allItems.length));
+        Bitmap pic = cache.getBitmap(LABEL.name() + (position % allItems.length));
         if (pic == null) {
             boolean cancelled = BitmapWorkerTask.potentialCancel(position, view);
             if (cancelled) {
@@ -113,6 +115,7 @@ public class CacheImageLoader implements ImageLoader {
                 task.execute(position);
             }
         } else {
+            holder.setContainer(new CacheImageContainer(null));
             view.setImageBitmap(pic);
         }
     }
@@ -133,9 +136,25 @@ public class CacheImageLoader implements ImageLoader {
     }
 
     @Override
-    public Bitmap getBitmap(Object id) throws IOException {
-        int resId = ((Integer) id ) % allItems.length;
-        Resources res = SingletonCarrier.getInstance().getContext().getResources();
-        return ImageScaler.decodeSampledBitmapFromResource(res, allItems[resId]);
+    public Bitmap getBitmap(int position) throws IOException {
+        int resId = position % allItems.length;
+        String cacheKey = LABEL.name() + "_big_" + resId;
+        Bitmap b = cache.getBitmap(cacheKey);
+        if (b == null) {
+            Resources res = SingletonCarrier.getInstance().getContext().getResources();
+            b = ImageScaler.decodeSampledBitmapFromResource(res, allItems[resId]);
+            cache.putBitmap(cacheKey, b);
+        }
+        return b;
+    }
+
+    @Override
+    public String getAuthor(int position) {
+        return null;
+    }
+
+    @Override
+    public String getTitle(int position) {
+        return null;
     }
 }

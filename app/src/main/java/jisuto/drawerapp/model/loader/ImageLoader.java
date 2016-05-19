@@ -19,5 +19,9 @@ public interface ImageLoader extends Serializable {
 
     void onAcquireCount(LoadListener eventListener);
 
-    Bitmap getBitmap(Object id) throws IOException;
+    Bitmap getBitmap(int position) throws IOException;
+
+    String getAuthor(int position);
+
+    String getTitle(int position);
 }

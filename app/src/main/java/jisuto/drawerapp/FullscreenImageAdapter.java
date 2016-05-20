@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -18,13 +19,13 @@ import jisuto.drawerapp.model.loader.FullscreenFetcher;
 import jisuto.drawerapp.utils.ImageSource;
 
 public class FullscreenImageAdapter extends PagerAdapter {
-    private Activity _activity;
+    private FullscreenActivity _activity;
     private LayoutInflater inflater;
     private FullscreenFetcher fetcher;
 
     // constructor
     public FullscreenImageAdapter(AppCompatActivity activity, ImageSource source) {
-        this._activity = activity;
+        this._activity = (FullscreenActivity) activity;
         fetcher = new FullscreenFetcher(source);
 
     }
@@ -44,10 +45,9 @@ public class FullscreenImageAdapter extends PagerAdapter {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View viewLayout = inflater.inflate(R.layout.layout_fullscreen_image, container, false);
         View touchImageView = viewLayout.findViewById(R.id.touch_image_view);
-        touchImageView.setOnClickListener((FullscreenActivity)_activity);
-        fetcher.fetchImage(position, (ImageView) touchImageView);
-        String author = fetcher.getAuthor(position);
-        String title = fetcher.getTitle(position);
+        touchImageView.setOnClickListener(_activity);
+        View infoTextView = viewLayout.findViewById(R.id.info_text_view);
+        fetcher.fetchImage(position, (ImageView) touchImageView, (TextView) infoTextView);
 
         container.addView(viewLayout);
         return viewLayout;

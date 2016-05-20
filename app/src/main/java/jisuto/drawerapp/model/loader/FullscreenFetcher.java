@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.IOException;
 
@@ -53,23 +54,21 @@ public class FullscreenFetcher {
 
     }
 
-    public void fetchImage(Integer position, ImageView victim) {
+    public void fetchImage(Integer position, ImageView victim, TextView info) {
         Resources res = SingletonCarrier.getInstance().getContext().getResources();
         BitmapWorkerTask<Object> task = new FullscreenTask(victim);
         BitmapDrawable drawable = new AsyncDrawable(res, task);
         victim.setImageDrawable(drawable);
+        String title = loader.getTitle(position);
+        String author = loader.getAuthor(position);
+        if (title != null && author != null) {
+            info.setText("Author: " + author + "\nTitle: " + title);
+        }
+
         task.execute(position);
     }
 
     public int total() {
         return loader.total();
-    }
-
-    public String getTitle(int position) {
-        return loader.getTitle(position);
-    }
-
-    public String getAuthor(int position) {
-        return loader.getAuthor(position);
     }
 }
